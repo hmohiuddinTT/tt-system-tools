@@ -1,0 +1,24 @@
+name: Build and Release debian package
+run-name: Build and Release debian package
+on:
+  push:
+    tags: [ 'v*' ]
+
+  # release:
+  #   types: [published]
+  #   tags:
+  #     - 'v*'
+
+jobs:
+  build-deb:
+    uses: ./.github/workflows/build-deb.yml
+  release-deb:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

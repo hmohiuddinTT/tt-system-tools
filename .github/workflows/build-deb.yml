@@ -1,0 +1,35 @@
+name: Build Debian package
+run-name: Build Debian package
+on:
+  workflow_call: # Allows other workflows to import and trigger this workflow
+  workflow_dispatch: # Allows manual trigger
+  pull_request:
+    branches: [ '**' ] # Trigger on PRs from any branch
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update and install packages
+        run: sudo apt update && sudo apt install -y git-buildpackage debhelper build-essential
+      
+      - name: Checkout repo code
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          fetch-depth: 0
+      
+      - name: Build Debian package
+        run: gbp buildpackage --git-ignore-branch
+      
+      - name: Move Debian package
+        run: mkdir -p artifacts && mv ../*.deb artifacts/
+      
+      - name: Set environment variable for deb filename
+        run: echo "DEB_FILENAME=$(basename artifacts/*.deb)" >> $GITHUB_ENV
+      
+      - name: Upload Debian package
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.DEB_FILENAME }}
+          path: artifacts/*.deb
