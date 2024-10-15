@@ -19,9 +19,6 @@ jobs:
           fetch-tags: true
           fetch-depth: 0
       
-      - name: Annotate commits
-        run: git tag
-      
       - name: Build Debian package
         run: gbp buildpackage --git-ignore-branch
       
